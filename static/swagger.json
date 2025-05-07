@@ -1,0 +1,767 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Insurance AI Voice Bot API",
+    "description": "API for interacting with an AI voice bot for healthcare insurance inquiries",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5000/api",
+      "description": "Development server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "health",
+      "description": "API health check"
+    },
+    {
+      "name": "payments",
+      "description": "Payment assistance endpoints"
+    },
+    {
+      "name": "providers",
+      "description": "Provider lookup endpoints"
+    },
+    {
+      "name": "benefits",
+      "description": "Plan benefits endpoints"
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": ["health"],
+        "summary": "Check API health",
+        "description": "Returns a success response if the API is running",
+        "responses": {
+          "200": {
+            "description": "API is running",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "API is running"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/payments/authenticate": {
+      "post": {
+        "tags": ["payments"],
+        "summary": "Authenticate a member for payment",
+        "description": "Authenticate a member using DOB and ZIP code or Member ID for payment processing",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "dob": {
+                        "type": "string",
+                        "example": "01/15/1985"
+                      },
+                      "zip_code": {
+                        "type": "string",
+                        "example": "78745"
+                      }
+                    },
+                    "required": ["dob", "zip_code"]
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "member_id": {
+                        "type": "string",
+                        "example": "MEM12345"
+                      }
+                    },
+                    "required": ["member_id"]
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authentication successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "member": {
+                          "type": "object",
+                          "properties": {
+                            "member_id": {"type": "string"},
+                            "first_name": {"type": "string"},
+                            "last_name": {"type": "string"},
+                            "phone_last_four": {"type": "string"}
+                          }
+                        },
+                        "plan": {
+                          "type": "object",
+                          "properties": {
+                            "name": {"type": "string"},
+                            "type": {"type": "string"}
+                          }
+                        },
+                        "carrier": {
+                          "type": "object",
+                          "properties": {
+                            "name": {"type": "string"},
+                            "payment_portal": {"type": "string"},
+                            "payment_phone": {"type": "string"},
+                            "spanish_support": {"type": "boolean"}
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "error": {
+                      "type": "integer",
+                      "example": 401
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Authentication failed. Please check your information."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/payments/portal": {
+      "get": {
+        "tags": ["payments"],
+        "summary": "Get payment portal information",
+        "description": "Get payment portal information for a specific carrier",
+        "parameters": [
+          {
+            "name": "carrier",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "Ambetter"
+            },
+            "description": "Name of the insurance carrier"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Payment portal information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "name": {"type": "string"},
+                        "payment_portal": {"type": "string"},
+                        "payment_phone": {"type": "string"},
+                        "spanish_support": {"type": "boolean"},
+                        "customer_service": {"type": "string"}
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Carrier not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "error": {
+                      "type": "integer",
+                      "example": 404
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Carrier not found"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/providers": {
+      "get": {
+        "tags": ["providers"],
+        "summary": "Search for providers",
+        "description": "Search for providers based on ZIP code, specialty, and carrier",
+        "parameters": [
+          {
+            "name": "zip_code",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "example": "78745"
+            },
+            "description": "ZIP code for location-based search"
+          },
+          {
+            "name": "specialty",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "example": "Primary Care"
+            },
+            "description": "Provider specialty"
+          },
+          {
+            "name": "carrier",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "example": "Oscar Health"
+            },
+            "description": "Name of the insurance carrier"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "example": 10
+            },
+            "description": "Maximum number of providers to return"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of providers",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "count": {
+                      "type": "integer",
+                      "example": 1
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {"type": "integer"},
+                          "name": {"type": "string"},
+                          "specialty": {"type": "string"},
+                          "location": {"type": "string"},
+                          "zip_code": {"type": "string"},
+                          "languages": {
+                            "type": "array",
+                            "items": {"type": "string"}
+                          },
+                          "accepting_new_patients": {"type": "boolean"},
+                          "carrier_networks": {
+                            "type": "array",
+                            "items": {"type": "integer"}
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No providers found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "error": {
+                      "type": "integer",
+                      "example": 404
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "No providers found matching your criteria"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/providers/check-network": {
+      "get": {
+        "tags": ["providers"],
+        "summary": "Check provider network status",
+        "description": "Check if a specific provider is in a carrier's network",
+        "parameters": [
+          {
+            "name": "provider_name",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "Dr. Sarah Johnson"
+            },
+            "description": "Name of the provider"
+          },
+          {
+            "name": "carrier",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "Ambetter"
+            },
+            "description": "Name of the insurance carrier"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Network status result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "provider_name": {"type": "string"},
+                        "carrier": {"type": "string"},
+                        "in_network": {"type": "boolean"},
+                        "provider_directory": {"type": "string"}
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing required parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "error": {
+                      "type": "integer",
+                      "example": 400
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Both provider_name and carrier are required"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Carrier not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "error": {
+                      "type": "integer",
+                      "example": 404
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Carrier not found"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/benefits/authenticate": {
+      "post": {
+        "tags": ["benefits"],
+        "summary": "Authenticate a member for benefits",
+        "description": "Authenticate a member to retrieve plan benefits",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "dob": {
+                        "type": "string",
+                        "example": "01/15/1985"
+                      },
+                      "zip_code": {
+                        "type": "string",
+                        "example": "78745"
+                      }
+                    },
+                    "required": ["dob", "zip_code"]
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "member_id": {
+                        "type": "string",
+                        "example": "MEM12345"
+                      }
+                    },
+                    "required": ["member_id"]
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authentication successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "member": {
+                          "type": "object",
+                          "properties": {
+                            "member_id": {"type": "string"},
+                            "first_name": {"type": "string"},
+                            "last_name": {"type": "string"},
+                            "plan_id": {"type": "integer"}
+                          }
+                        },
+                        "plan": {
+                          "type": "object",
+                          "properties": {
+                            "id": {"type": "integer"},
+                            "name": {"type": "string"},
+                            "type": {"type": "string"},
+                            "carrier": {"type": "string"}
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "error": {
+                      "type": "integer",
+                      "example": 401
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Authentication failed. Please check your information."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/benefits/plan/{plan_id}": {
+      "get": {
+        "tags": ["benefits"],
+        "summary": "Get plan benefits",
+        "description": "Get detailed benefits information for a specific plan",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "example": 1
+            },
+            "description": "ID of the plan"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Plan benefits information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "plan_name": {"type": "string"},
+                        "carrier": {"type": "string"},
+                        "type": {"type": "string"},
+                        "deductible": {"type": "integer"},
+                        "out_of_pocket_max": {"type": "integer"},
+                        "copays": {
+                          "type": "object",
+                          "properties": {
+                            "primary_care": {"type": "integer"},
+                            "specialist": {"type": "integer"},
+                            "emergency": {"type": "integer"},
+                            "urgent_care": {"type": "integer"},
+                            "generic_drugs": {"type": "integer"}
+                          }
+                        },
+                        "coverage": {
+                          "type": "object",
+                          "properties": {
+                            "dental": {"type": "boolean"},
+                            "vision": {"type": "boolean"},
+                            "mental_health": {"type": "boolean"}
+                          }
+                        },
+                        "sbc_url": {"type": "string"},
+                        "customer_service": {"type": "string"}
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Plan not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "error": {
+                      "type": "integer",
+                      "example": 404
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Plan with ID 999 not found"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/benefits/coverage": {
+      "get": {
+        "tags": ["benefits"],
+        "summary": "Check service coverage",
+        "description": "Check if a specific service is covered by a plan",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "example": 1
+            },
+            "description": "ID of the plan"
+          },
+          {
+            "name": "service",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["dental", "vision", "mental_health"],
+              "example": "dental"
+            },
+            "description": "Service to check"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Coverage check result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "plan_name": {"type": "string"},
+                        "service": {"type": "string"},
+                        "is_covered": {"type": "boolean"}
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid service type",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "error": {
+                      "type": "integer",
+                      "example": 400
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid service. Must be one of: dental, vision, mental_health"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Plan not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "error": {
+                      "type": "integer",
+                      "example": 404
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Plan with ID 999 not found"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

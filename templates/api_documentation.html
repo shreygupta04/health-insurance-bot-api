@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Documentation - Insurance AI Voice Bot API</title>
+    <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-headset me-2"></i>Insurance AI Voice Bot API
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/docs">API Documentation</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/api/health" target="_blank">Health Check</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="api-heading">Insurance API Documentation</h1>
+                <p class="lead mb-5">This documentation provides information about all available endpoints, their parameters, and response formats for the Insurance AI Voice Bot.</p>
+
+                <div class="card bg-dark mb-4">
+                    <div class="card-body">
+                        <h2>General Information</h2>
+                        <p>All API responses have a consistent structure:</p>
+                        <pre><code>{
+  "success": true/false,     // Indicates if the request was successful
+  "data": { ... },          // Data returned (for successful requests)
+  "count": 10,              // Number of items returned (for collection endpoints)
+  "error": 404,             // Error code (for failed requests)
+  "message": "Error message" // Error message (for failed requests)
+}</code></pre>
+                        <h3 class="mt-4">HTTP Status Codes</h3>
+                        <ul>
+                            <li><strong>200</strong> - Success</li>
+                            <li><strong>400</strong> - Bad request (invalid parameters)</li>
+                            <li><strong>401</strong> - Authentication failed</li>
+                            <li><strong>404</strong> - Resource not found</li>
+                            <li><strong>500</strong> - Internal server error</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card bg-dark mb-4">
+                    <div class="card-body">
+                        <h2>Available Endpoints</h2>
+                        <ul class="nav nav-tabs" id="apiTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="health-tab" data-bs-toggle="tab" data-bs-target="#health" type="button" role="tab" aria-controls="health" aria-selected="true">General</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="payments-tab" data-bs-toggle="tab" data-bs-target="#payments" type="button" role="tab" aria-controls="payments" aria-selected="false">Payments</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="providers-tab" data-bs-toggle="tab" data-bs-target="#providers" type="button" role="tab" aria-controls="providers" aria-selected="false">Providers</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="benefits-tab" data-bs-toggle="tab" data-bs-target="#benefits" type="button" role="tab" aria-controls="benefits" aria-selected="false">Benefits</button>
+                            </li>
+                        </ul>
+                        <div class="tab-content pt-4" id="apiTabContent">
+                            <div class="tab-pane fade show active" id="health" role="tabpanel" aria-labelledby="health-tab">
+                                <div class="endpoint">
+                                    <h3>
+                                        <span class="http-method method-get">GET</span>
+                                        <span class="url-path">/api/health</span>
+                                    </h3>
+                                    <p>Check if the API is running.</p>
+                                    
+                                    <div class="response-example">
+                                        <h4>Example Response</h4>
+                                        <pre><code>{
+  "status": "success",
+  "message": "API is running"
+}</code></pre>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane fade" id="payments" role="tabpanel" aria-labelledby="payments-tab">
+                                <div class="endpoint">
+                                    <h3>
+                                        <span class="http-method method-post">POST</span>
+                                        <span class="url-path">/api/payments/authenticate</span>
+                                    </h3>
+                                    <p>Authenticate a member for payment processing.</p>
+                                    
+                                    <div class="parameter-table">
+                                        <h4>Request Body Parameters</h4>
+                                        <table class="table table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th>Parameter</th>
+                                                    <th>Type</th>
+                                                    <th>Required</th>
+                                                    <th>Description</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>dob</td>
+                                                    <td>string</td>
+                                                    <td>Yes (if no member_id)</td>
+                                                    <td>Date of birth in MM/DD/YYYY format</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>zip_code</td>
+                                                    <td>string</td>
+                                                    <td>Yes (if no member_id)</td>
+                                                    <td>5-digit ZIP code</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>member_id</td>
+                                                    <td>string</td>
+                                                    <td>Yes (if no DOB+ZIP)</td>
+                                                    <td>Member ID (alternative to DOB + ZIP)</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    
+                                    <div class="response-example">
+                                        <h4>Example Response (Success)</h4>
+                                        <pre><code>{
+  "success": true,
+  "data": {
+    "member": {
+      "first_name": "John",
+      "last_name": "Doe",
+      "member_id": "MEM12345",
+      "phone_last_four": "1234"
+    },
+    "carrier": {
+      "name": "Ambetter",
+      "payment_portal": "https://ambetter.paymentportal.com",
+      "payment_phone": "1-800-123-4567",
+      "spanish_support": true
+    },
+    "plan": {
+      "name": "Ambetter SecureCare Bronze 2025",
+      "type": "Bronze"
+    }
+  }
+}</code></pre>
+                                    </div>
+                                    
+                                    <div class="response-example">
+                                        <h4>Example Response (Authentication Failed)</h4>
+                                        <pre><code>{
+  "success": false,
+  "error": 401,
+  "message": "Authentication failed. Please check your information."
+}</code></pre>
+                                    </div>
+                                </div>
+
+                                <div class="endpoint">
+                                    <h3>
+                                        <span class="http-method method-get">GET</span>
+                                        <span class="url-path">/api/payments/portal</span>
+                                    </h3>
+                                    <p>Get payment portal information for a carrier.</p>
+                                    
+                                    <div class="parameter-table">
+                                        <h4>Query Parameters</h4>
+                                        <table class="table table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th>Parameter</th>
+                                                    <th>Type</th>
+                                                    <th>Required</th>
+                                                    <th>Description</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>carrier</td>
+                                                    <td>string</td>
+                                                    <td>Yes</td>
+                                                    <td>Name of the insurance carrier</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    
+                                    <div class="response-example">
+                                        <h4>Example Response</h4>
+                                        <pre><code>{
+  "success": true,
+  "data": {
+    "name": "Ambetter",
+    "payment_portal": "https://ambetter.paymentportal.com",
+    "payment_phone": "1-800-123-4567",
+    "spanish_support": true,
+    "customer_service": "1-888-123-4567"
+  }
+}</code></pre>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane fade" id="providers" role="tabpanel" aria-labelledby="providers-tab">
+                                <div class="endpoint">
+                                    <h3>
+                                        <span class="http-method method-get">GET</span>
+                                        <span class="url-path">/api/providers</span>
+                                    </h3>
+                                    <p>Search for providers based on location, specialty, and carrier.</p>
+                                    
+                                    <div class="parameter-table">
+                                        <h4>Query Parameters</h4>
+                                        <table class="table table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th>Parameter</th>
+                                                    <th>Type</th>
+                                                    <th>Required</th>
+                                                    <th>Description</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>zip_code</td>
+                                                    <td>string</td>
+                                                    <td>No</td>
+                                                    <td>ZIP code for location-based search</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>specialty</td>
+                                                    <td>string</td>
+                                                    <td>No</td>
+                                                    <td>Provider specialty (Primary Care, Cardiology, etc.)</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>carrier</td>
+                                                    <td>string</td>
+                                                    <td>No</td>
+                                                    <td>Insurance carrier name</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>limit</td>
+                                                    <td>integer</td>
+                                                    <td>No</td>
+                                                    <td>Maximum number of providers to return (default: 10)</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    
+                                    <div class="response-example">
+                                        <h4>Example Response</h4>
+                                        <pre><code>{
+  "success": true,
+  "count": 2,
+  "data": [
+    {
+      "id": 1,
+      "name": "Dr. Sarah Johnson",
+      "specialty": "Primary Care",
+      "location": "Austin, TX",
+      "zip_code": "78745",
+      "accepting_new_patients": true,
+      "languages": ["English", "Spanish"],
+      "carrier_networks": [1, 2, 3]
+    },
+    {
+      "id": 5,
+      "name": "Dr. Maria Rodriguez",
+      "specialty": "Dermatology",
+      "location": "Chicago, IL",
+      "zip_code": "60601",
+      "accepting_new_patients": true,
+      "languages": ["English", "Spanish"],
+      "carrier_networks": [1, 2, 4, 5]
+    }
+  ]
+}</code></pre>
+                                    </div>
+                                </div>
+
+                                <div class="endpoint">
+                                    <h3>
+                                        <span class="http-method method-get">GET</span>
+                                        <span class="url-path">/api/providers/check-network</span>
+                                    </h3>
+                                    <p>Check if a specific provider is in a carrier's network.</p>
+                                    
+                                    <div class="parameter-table">
+                                        <h4>Query Parameters</h4>
+                                        <table class="table table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th>Parameter</th>
+                                                    <th>Type</th>
+                                                    <th>Required</th>
+                                                    <th>Description</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>provider_name</td>
+                                                    <td>string</td>
+                                                    <td>Yes</td>
+                                                    <td>Name of the provider</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>carrier</td>
+                                                    <td>string</td>
+                                                    <td>Yes</td>
+                                                    <td>Name of the insurance carrier</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    
+                                    <div class="response-example">
+                                        <h4>Example Response</h4>
+                                        <pre><code>{
+  "success": true,
+  "data": {
+    "provider_name": "Dr. Sarah Johnson",
+    "carrier": "Ambetter",
+    "in_network": true,
+    "provider_directory": "https://ambetter.providerdirectory.com"
+  }
+}</code></pre>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane fade" id="benefits" role="tabpanel" aria-labelledby="benefits-tab">
+                                <div class="endpoint">
+                                    <h3>
+                                        <span class="http-method method-post">POST</span>
+                                        <span class="url-path">/api/benefits/authenticate</span>
+                                    </h3>
+                                    <p>Authenticate a member to retrieve plan benefits.</p>
+                                    
+                                    <div class="parameter-table">
+                                        <h4>Request Body Parameters</h4>
+                                        <table class="table table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th>Parameter</th>
+                                                    <th>Type</th>
+                                                    <th>Required</th>
+                                                    <th>Description</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>dob</td>
+                                                    <td>string</td>
+                                                    <td>Yes (if no member_id)</td>
+                                                    <td>Date of birth in MM/DD/YYYY format</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>zip_code</td>
+                                                    <td>string</td>
+                                                    <td>Yes (if no member_id)</td>
+                                                    <td>5-digit ZIP code</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>member_id</td>
+                                                    <td>string</td>
+                                                    <td>Yes (if no DOB+ZIP)</td>
+                                                    <td>Member ID (alternative to DOB + ZIP)</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    
+                                    <div class="response-example">
+                                        <h4>Example Response (Success)</h4>
+                                        <pre><code>{
+  "success": true,
+  "data": {
+    "member_id": 1,
+    "first_name": "John",
+    "last_name": "Doe",
+    "plan_id": 1,
+    "carrier": "Ambetter"
+  }
+}</code></pre>
+                                    </div>
+                                </div>
+
+                                <div class="endpoint">
+                                    <h3>
+                                        <span class="http-method method-get">GET</span>
+                                        <span class="url-path">/api/benefits/plan/{plan_id}</span>
+                                    </h3>
+                                    <p>Get detailed benefits information for a specific plan.</p>
+                                    
+                                    <div class="parameter-table">
+                                        <h4>Path Parameters</h4>
+                                        <table class="table table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th>Parameter</th>
+                                                    <th>Type</th>
+                                                    <th>Required</th>
+                                                    <th>Description</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>plan_id</td>
+                                                    <td>integer</td>
+                                                    <td>Yes</td>
+                                                    <td>ID of the plan</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    
+                                    <div class="response-example">
+                                        <h4>Example Response</h4>
+                                        <pre><code>{
+  "success": true,
+  "data": {
+    "plan_name": "Ambetter SecureCare Bronze 2025",
+    "carrier": "Ambetter",
+    "type": "Bronze",
+    "deductible": 8000,
+    "out_of_pocket_max": 9000,
+    "copays": {
+      "primary_care": 40,
+      "specialist": 80,
+      "emergency": 500,
+      "urgent_care": 75,
+      "generic_drugs": 25
+    },
+    "coverage": {
+      "dental": false,
+      "vision": false,
+      "mental_health": true
+    },
+    "sbc_url": "https://ambetter.com/sbc/bronze2025.pdf",
+    "customer_service": "1-888-123-4567"
+  }
+}</code></pre>
+                                    </div>
+                                </div>
+
+                                <div class="endpoint">
+                                    <h3>
+                                        <span class="http-method method-get">GET</span>
+                                        <span class="url-path">/api/benefits/coverage</span>
+                                    </h3>
+                                    <p>Check if a specific service is covered by a plan.</p>
+                                    
+                                    <div class="parameter-table">
+                                        <h4>Query Parameters</h4>
+                                        <table class="table table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th>Parameter</th>
+                                                    <th>Type</th>
+                                                    <th>Required</th>
+                                                    <th>Description</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>plan_id</td>
+                                                    <td>integer</td>
+                                                    <td>Yes</td>
+                                                    <td>ID of the plan</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>service</td>
+                                                    <td>string</td>
+                                                    <td>Yes</td>
+                                                    <td>Service to check (dental, vision, mental_health)</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    
+                                    <div class="response-example">
+                                        <h4>Example Response</h4>
+                                        <pre><code>{
+  "success": true,
+  "data": {
+    "plan_name": "Ambetter SecureCare Bronze 2025",
+    "service": "dental",
+    "is_covered": false
+  }
+}</code></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-dark text-light mt-5 py-4">
+        <div class="container text-center">
+            <p>&copy; 2025 Insurance AI Voice Bot API</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

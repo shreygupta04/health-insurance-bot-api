@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insurance API for AI Voice Bot</title>
+    <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-headset me-2"></i>Insurance AI Voice Bot API
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/docs">API Documentation</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/api/health" target="_blank">Health Check</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="text-center mb-5">
+                    <h1 class="display-4">Insurance API</h1>
+                    <p class="lead">A REST API for AI voice bot insurance services</p>
+                </div>
+
+                <div class="card bg-dark shadow-sm mb-4">
+                    <div class="card-body">
+                        <h2 class="card-title">Getting Started</h2>
+                        <p>This API provides endpoints for an AI voice bot to handle insurance-related queries including payment assistance, provider lookup, and benefits information.</p>
+                        <p>All endpoints return data in standard JSON structure with proper HTTP status codes and error handling.</p>
+                        <a href="/docs" class="btn btn-primary">View API Documentation</a>
+                    </div>
+                </div>
+
+                <div class="card bg-dark shadow-sm mb-4">
+                    <div class="card-body">
+                        <h2 class="card-title">Core Functionality</h2>
+                        <div class="row mt-4">
+                            <div class="col-md-4 mb-4">
+                                <div class="card h-100 bg-dark-subtle">
+                                    <div class="card-body text-center">
+                                        <i class="bi bi-credit-card fs-1 text-info mb-3"></i>
+                                        <h3 class="card-title h5">Premium Payment</h3>
+                                        <p class="card-text small">Authenticate users and provide carrier payment portal information</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-4">
+                                <div class="card h-100 bg-dark-subtle">
+                                    <div class="card-body text-center">
+                                        <i class="bi bi-hospital fs-1 text-info mb-3"></i>
+                                        <h3 class="card-title h5">Provider Lookup</h3>
+                                        <p class="card-text small">Find in-network doctors based on location and specialty</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-4">
+                                <div class="card h-100 bg-dark-subtle">
+                                    <div class="card-body text-center">
+                                        <i class="bi bi-shield-check fs-1 text-info mb-3"></i>
+                                        <h3 class="card-title h5">Plan Benefits</h3>
+                                        <p class="card-text small">Retrieve coverage details, deductibles, and copay information</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card bg-dark shadow-sm mb-4">
+                    <div class="card-body">
+                        <h2 class="card-title">Available Endpoints</h2>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item bg-dark">
+                                <span class="badge bg-success">GET</span>
+                                <code>/api/health</code> - Health check endpoint
+                            </li>
+                            <li class="list-group-item bg-dark">
+                                <span class="badge bg-primary">POST</span>
+                                <code>/api/payments/authenticate</code> - Authenticate for payment
+                            </li>
+                            <li class="list-group-item bg-dark">
+                                <span class="badge bg-success">GET</span>
+                                <code>/api/payments/portal</code> - Get payment portal info
+                            </li>
+                            <li class="list-group-item bg-dark">
+                                <span class="badge bg-success">GET</span>
+                                <code>/api/providers</code> - Find in-network providers
+                            </li>
+                            <li class="list-group-item bg-dark">
+                                <span class="badge bg-success">GET</span>
+                                <code>/api/providers/check-network</code> - Check if provider is in-network
+                            </li>
+                            <li class="list-group-item bg-dark">
+                                <span class="badge bg-primary">POST</span>
+                                <code>/api/benefits/authenticate</code> - Authenticate for benefits
+                            </li>
+                            <li class="list-group-item bg-dark">
+                                <span class="badge bg-success">GET</span>
+                                <code>/api/benefits/plan/{plan_id}</code> - Get plan benefits
+                            </li>
+                            <li class="list-group-item bg-dark">
+                                <span class="badge bg-success">GET</span>
+                                <code>/api/benefits/coverage</code> - Check service coverage
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card bg-dark shadow-sm">
+                    <div class="card-body">
+                        <h2 class="card-title">Try It Now</h2>
+                        <p>Click the buttons below to try some of the API endpoints:</p>
+                        <div class="d-grid gap-2 d-md-flex flex-wrap">
+                            <a href="/api/health" target="_blank" class="btn btn-outline-info me-md-2 mb-2">Health Check</a>
+                            <a href="/api/payments/portal?carrier=Ambetter" target="_blank" class="btn btn-outline-info me-md-2 mb-2">Ambetter Payment Portal</a>
+                            <a href="/api/providers?carrier=Oscar+Health&zip_code=33130" target="_blank" class="btn btn-outline-info me-md-2 mb-2">Oscar Providers in Miami</a>
+                            <a href="/api/benefits/plan/3" target="_blank" class="btn btn-outline-info mb-2">BCBS Gold Plan Benefits</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-dark text-light mt-5 py-4">
+        <div class="container text-center">
+            <p>&copy; 2025 Insurance AI Voice Bot API</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

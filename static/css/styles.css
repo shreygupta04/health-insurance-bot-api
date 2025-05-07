@@ -1,0 +1,65 @@
+/* Custom styles to supplement the Bootstrap theme */
+.endpoint {
+    margin-bottom: 30px;
+    padding: 15px;
+    border-radius: 8px;
+    background-color: var(--bs-dark);
+}
+
+.endpoint h3 {
+    color: var(--bs-info);
+    margin-bottom: 15px;
+}
+
+.http-method {
+    font-weight: bold;
+    padding: 3px 8px;
+    border-radius: 4px;
+    margin-right: 10px;
+}
+
+.method-get {
+    background-color: var(--bs-success);
+    color: white;
+}
+
+.method-post {
+    background-color: var(--bs-primary);
+    color: white;
+}
+
+.method-put {
+    background-color: var(--bs-warning);
+    color: black;
+}
+
+.method-delete {
+    background-color: var(--bs-danger);
+    color: white;
+}
+
+.url-path {
+    font-family: monospace;
+    background-color: var(--bs-secondary-bg);
+    padding: 5px 10px;
+    border-radius: 4px;
+}
+
+pre {
+    background-color: var(--bs-tertiary-bg);
+    padding: 15px;
+    border-radius: 8px;
+    overflow-x: auto;
+}
+
+.parameter-table {
+    margin-top: 15px;
+}
+
+.response-example {
+    margin-top: 15px;
+}
+
+.api-heading {
+    margin-bottom: 30px;
+}

@@ -1,0 +1,77 @@
+The AI system will handle three core functionality flows corresponding to the top inquiries:
+A. “Make a Payment” – Premium Payment Assistance
+User Intent: “I need to pay my premium” (or similar: “pay my bill”, “make a payment”, “pagar mi prima/mi factura”) or “how do I pay my premium". This is the most common question, especially right after enrollment or before the monthly due date.
+AI Actions & Requirements:
+Authentication: Before providing account-specific info (like directing to the correct payment portal), the system should verify the member’s identity to protect personal information. For automation, a lightweight authentication will be used: the member will be asked to provide two pieces of data – e.g., Date of Birth and ZIP code, or their Member ID. These will be cross-checked against the member database (via AgencyBloc CRM or HealthSherpa records) to find a matching member profile. If the verification fails after 2 attempts (e.g., data doesn’t match or user is unsure), the bot will apologize and escalate to a live agent, rather than risk disclosing info to an unverified caller. (No sensitive PHI beyond basic identity validation will be solicited.)
+
+
+Identify Carrier and Plan: Once authenticated, the AI retrieves the member’s insurance carrier and plan information from the database. For example, it might find that John Doe is enrolled in “Ambetter SecureCare Bronze 2025” with policy ID 12345. The system will map this to the correct insurance carrier’s payment portal URL or phone. (The brokerage has a reference table mapping each carrier to their payment site or instructions.)
+
+
+Provide Payment Instructions: The AI will then guide the member on how to make the payment. This includes sharing the direct payment link and any relevant instructions. For instance, for Oscar Health plans it might respond: “To pay your premium, please visit Oscar’s payment portal at [link]. I’ve looked up your account – here’s your personalized payment link. Once there, you can log in or enter your policy info to make a one-time payment or set up autopay. Would you like me to text or email this link to you now?” In voice, the agent can offer to send the link via SMS or email on file (using Twilio to send an SMS with the URL, or Zendesk to email it). In chat or email, it can directly hyperlink the portal.
+
+
+Multi-Language: If the interaction is in Spanish, the response and instructions will be given in Spanish (with the correct Spanish pages if available). For example, “Para pagar tu prima, visita el portal de pagos de [Carrier Name] en este enlace: ...”. Ensure that carrier names or terms are not poorly translated – likely keep proper nouns in English but explain in Spanish.
+
+
+No Payment Processing in Bot: The bot will not directly handle payment transactions (no collecting credit card info over chat or phone) for security reasons. Its role is routing and guiding. If the carrier’s portal requires a phone payment, the bot can provide the carrier’s billing phone number or offer to transfer the call to that number via Twilio.
+
+
+Error Handling: If the member says they have trouble with the portal or lost their login, the AI can provide a generic tip (like “If you don’t have your login, you can select ‘Forgot password’ on the portal or call the carrier’s billing support at XYZ number.”). If the user still is having issues, escalate to human.
+
+
+Example Voice Flow:
+AI: “Sure, I can help with a payment. To make sure I have the right information, can I get your date of birth and ZIP code?”
+
+
+User: “01/15/1985 and 78745.”
+
+
+(System checks records via API)
+
+
+AI: “Thank you! I see you have a policy with Ambetter. I’ll direct you to Ambetter’s payment system. I’ve sent a secure link to your phone ending in 1234 that will take you directly to Ambetter’s online payment page. You can complete your payment there. Is there anything else I can help you with?”
+
+
+User: “No, that’s all.”
+
+
+AI: “Great. Thank you for calling – your payment link is on its way! Have a nice day.”
+
+
+The conversation above would similarly apply in chat (the bot would just drop the link in the chat window with a message) or email (an automated reply containing the link and instructions). Throughout this, PHI is protected – the bot only gave out a link after verifying identity, and it did not speak any sensitive info aloud besides verifying DOB/ZIP which the user provided.
+B. “Find a Doctor” – In-Network Provider Lookup
+User Intent: The member needs to find doctors or facilities that accept their plan. They might say things like “Find a doctor near me”, “Is Dr. Smith in network?”, “buscar un médico en mi plan”, or “need a pediatrician in 90210 on my plan.” This could be either a general request or a specific provider query.
+AI Actions & Requirements:
+Gather Required Info: The AI will prompt the user for key details needed to search the provider network. At minimum, this is the member’s ZIP code (or city/state) for location and either the plan name or carrier name. If the member is authenticated already (as in the payment flow) or if the system can identify their plan from an earlier context (e.g., the user already logged into the member portal chat, or their email is tied to a record), then it can skip directly to using that info. Otherwise, the bot will ask questions like: “Sure, I can help you find a doctor. First, what’s your ZIP code or city? And which insurance plan are you on – for example, Oscar, Ambetter, Blue Cross, etc.?” These can be open questions or multiple-choice if we have the data (on chat we could show a dropdown of carriers if needed).
+
+
+Determine Provider Directory: The brokerage will maintain a mapping of provider search resources for each carrier and plan. Many carriers have public “find a doctor” web tools. For example, Oscar Health has a provider search URL (as given in the prompt example) that can be pre-filled with network or year parameters. Ambetter might have a state-specific directory page. The system will use either a rules engine or an AI retrieval method to select the correct link. Example: If the user’s carrier is Oscar, the bot knows to use Oscar’s directory link (e.g., hioscar.com/search/?networkId=...&year=2025). If Ambetter, use Ambetter’s “Find a Provider” page for the member’s state.
+
+
+Provide Link and Guidance: The AI will respond with a direct link to the appropriate provider search page and instructions on how to use it. For instance, the chatbot reply might be: “You can find in-network providers using Oscar’s doctor search tool: Oscar Provider Search. Click the link and enter your city or ZIP code (for example, 78745) to see doctors and clinics in-network for your 2025 Oscar plan. You can filter by specialty, language, etc. on that page.” In voice, because clicking a link isn’t possible, the AI can offer to text the link to the member’s phone or email it. It will also verbally guide: “I’ve sent a link to your Oscar provider directory. Open that link on your phone or computer, then enter your location and you’ll be able to search for doctors covered by your plan. If you need further help, I can connect you to a representative.”
+
+
+Language Consideration: Provide the instructions in the user’s language. Some carrier websites might detect language or have Spanish versions; if available, give the Spanish link or guide. E.g., “Visita el directorio de médicos de Oscar en este enlace... Allí puedes ingresar tu código postal para encontrar médicos en tu red.”
+
+
+Specific Doctor Query: If the user asks, “Is Dr. Garcia in my network?”, the AI should attempt to handle it. Ideally, an advanced implementation might search the directory for the doctor’s name on behalf of the user. However, that requires scraping or an API for each provider directory, which may not be readily available for all carriers. As an MVP, the bot can respond by guiding the user to use the search: “The best way to check is to use your provider search tool. I’ve sent you the link – you can type the doctor’s name ‘Dr. Garcia’ in the search bar on that page to see if they accept your plan.” If we have some carriers where an API is accessible (some directories might have an API or the brokerage has a database of providers), we could integrate that in later phases. For now, providing the resource and clear steps is sufficient.
+
+
+Follow-up: After giving the link, the bot can ask if the member needs additional help using it. If the member seems confused or cannot use the web link, a fallback is to offer a human agent who can possibly look up a few providers for them.
+
+
+Example Chat Flow:
+ User (in Spanish): “Necesito un doctor cerca de mi.”
+ Bot (detects Spanish, responds in Spanish): “Claro, puedo ayudarte a encontrar un médico en tu red. ¿Cuál es tu código postal y el nombre de tu compañía de seguros o plan?”
+ User: “Mi código postal es 33130 y tengo Ambetter.”
+ Bot: “Gracias. Aquí está el enlace para buscar médicos de Ambetter: [Directorio de Proveedores Ambetter]. Ingresa tu código postal (33130) en esa página y verás una lista de médicos y hospitales en la red de Ambetter en tu área. Puedes filtrar por especialidad o idioma. ¿Necesitas ayuda adicional con eso?”
+ (Bot would have selected the Ambetter directory link for Florida, since 33130 is Miami, FL. If multiple Ambetter state sites exist, it picks correctly based on plan data or asks for state.)
+In voice, a similar conversation would occur, but the bot might instead say “for Ambetter, you can visit ambetterhealth.com and use their ‘Find a Provider’ tool. I can text you the direct link now.” Then it sends an SMS.
+C. “Plan Benefits” – Benefits and Coverage Information
+User Intent: The member wants to understand what their plan covers or specific benefit details. Queries may include: “What are my benefits?”, “How much is my deductible?”, “Does my plan cover dental?”, “What’s the copay for doctor visits on my plan?”, or in Spanish “¿Cuáles son los beneficios de mi plan?” etc. These questions are about factual plan information, not asking for medical advice.
+AI Actions & Requirements:
+Identify Plan: To answer accurately, the system needs to know the member’s exact plan. This likely requires verification similar to the payment use case, since benefits can vary by plan. If the user is in chat and has logged in via a member portal (so we know who they are), or if they provide a plan ID or name, the AI will use that. Otherwise, the bot may ask for a plan identifier (could be their policy number or the exact plan name/year). A possible prompt: “I can certainly help with your plan benefits. To make sure I give you the correct info, could you tell me your health plan’s name? It should be on your insurance card, e.g. ‘Blue Choice Gold 2025’.” Alternatively, ask for their member ID, which can be looked up via HealthSherpa/AgencyBloc to fetch plan details. For voice, verification by DOB & ZIP (as done in Payment) might be reused so we get their record and plan info.
+
+
+Retrieve Benefits Data: The company has structured plan data available (via HealthSherpa API or internal database) which includes key benefits of each plan. This typically includes fields like deductible amount, out-of-pocket maximum, co-pay or co-insurance for common services (primary care visit, specialist, emergency room, generic drugs, etc.), and whether certain services are covered. Additionally, the brokerage likely has access to the Summary of Benefits and Coverage (SBC) documents or a summarized version for each plan. Using the plan identifier, the system will pull a relevant summary of the plan’s benefits. This could be done through a database query or an API call to HealthSherpa (which provides plan details).
